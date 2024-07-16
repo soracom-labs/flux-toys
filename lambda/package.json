@@ -1,0 +1,24 @@
+{
+  "name": "lambda",
+  "version": "1.0.0",
+  "description": "",
+  "main": "soracam-2-harvestf.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "types": "./soracam-2-harvestf.d.ts",
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.614.0",
+    "axios": "^1.7.2",
+    "dayjs": "^1.11.11",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.12",
+    "aws-sdk-client-mock": "^4.0.1",
+    "axios-mock-adapter": "^1.22.0",
+    "ts-jest": "^29.2.2"
+  }
+}
