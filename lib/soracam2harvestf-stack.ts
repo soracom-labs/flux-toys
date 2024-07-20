@@ -5,11 +5,33 @@ export interface Soracam2HarvestfStackProps extends cdk.StackProps {
   readonly soracomAuthKeyId?: string;
   readonly soracomAuthKey?: string;
   readonly harvestFilesPath: string;
+  readonly googleSecretname?: string;
 }
 
 export class Soracam2HarvestfStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: Soracam2HarvestfStackProps) {
     super(scope, id, props);
+
+    const api = new cdk.aws_apigateway.RestApi(this, "FluxToysCollection", {
+      defaultMethodOptions: {
+        apiKeyRequired: true,
+      },
+      deployOptions: {
+        stageName: "v1",
+      },
+    });
+
+    const apiKey = api.addApiKey("FluxToysCollectionApiKey", {
+      apiKeyName: "FluxToysCollectionApiKey",
+    });
+    const plan = api.addUsagePlan("FluxToysCollectionUsagePlan", {
+      name: "FluxToysCollectionUsagePlan",
+    });
+    plan.addApiKey(apiKey);
+    plan.addApiStage({ stage: api.deploymentStage });
+    const sinkResource = api.root.addResource("sink");
+    const fetcherResource = api.root.addResource("fetcher");
+    const decoratorResource = api.root.addResource("decorator");
 
     const nodeJSFunctionProps = {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
@@ -22,6 +44,8 @@ export class Soracam2HarvestfStack extends cdk.Stack {
     };
 
     const functionsReferenceArray: cdk.aws_lambda.Function[] = [];
+    const sourceFunctionReferenceArray: cdk.aws_lambda.Function[] = [];
+    const sinkFunctionReferenceArray: cdk.aws_lambda.Function[] = [];
 
     const SoracamImageFetcherFunction = new cdk.aws_lambda.Function(
       this,
@@ -45,7 +69,42 @@ export class Soracam2HarvestfStack extends cdk.Stack {
     );
     functionsReferenceArray.push(HarvestDecoratorFunction);
 
-    const secret = new cdk.aws_secretsmanager.Secret(
+    if (props.googleSecretname) {
+      const GoogleSheetsSinkFunction = new cdk.aws_lambda.Function(
+        this,
+        "GoogleSheetsSinkFunction",
+        {
+          handler: "googlesheets-sink.handler",
+          code: cdk.aws_lambda.Code.fromAsset("lambda"),
+          ...nodeJSFunctionProps,
+        }
+      );
+
+      const googleSecret = cdk.aws_secretsmanager.Secret.fromSecretNameV2(
+        this,
+        "GoogleSecret",
+        props.googleSecretname
+      );
+
+      googleSecret.grantRead(GoogleSheetsSinkFunction);
+
+      GoogleSheetsSinkFunction.addEnvironment(
+        "GOOGLE_SECRET_NAME",
+        googleSecret.secretName
+      );
+
+      sinkResource
+        .addResource("googlesheets")
+        .addMethod(
+          "POST",
+          new cdk.aws_apigateway.LambdaIntegration(GoogleSheetsSinkFunction)
+        );
+
+      functionsReferenceArray.push(GoogleSheetsSinkFunction);
+      sinkFunctionReferenceArray.push(GoogleSheetsSinkFunction);
+    }
+
+    const soracomSecret = new cdk.aws_secretsmanager.Secret(
       this,
       "Soracam2HarvestfSecret",
       {
@@ -60,29 +119,9 @@ export class Soracam2HarvestfStack extends cdk.Stack {
     );
 
     functionsReferenceArray.forEach((fn: cdk.aws_lambda.Function) => {
-      secret.grantRead(fn);
-      fn.addEnvironment("SECRET_NAME", secret.secretName);
+      soracomSecret.grantRead(fn);
+      fn.addEnvironment("SECRET_NAME", soracomSecret.secretName);
     });
-
-    const api = new cdk.aws_apigateway.RestApi(this, "FluxToysCollection", {
-      defaultMethodOptions: {
-        apiKeyRequired: true,
-      },
-      deployOptions: {
-        stageName: "v1",
-      },
-    });
-
-    const apiKey = api.addApiKey("FluxToysCollectionApiKey", {
-      apiKeyName: "FluxToysCollectionApiKey",
-    });
-    const plan = api.addUsagePlan("FluxToysCollectionUsagePlan", {
-      name: "FluxToysCollectionUsagePlan",
-    });
-    plan.addApiKey(apiKey);
-    plan.addApiStage({ stage: api.deploymentStage });
-
-    const fetcherResource = api.root.addResource("fetcher");
 
     const soracamImageResource = fetcherResource.addResource("soracam_image");
     soracamImageResource.addMethod(
@@ -90,7 +129,6 @@ export class Soracam2HarvestfStack extends cdk.Stack {
       new cdk.aws_apigateway.LambdaIntegration(SoracamImageFetcherFunction)
     );
 
-    const decoratorResource = api.root.addResource("decorator");
     const harvestDocoratorResource = decoratorResource.addResource("harvest");
     harvestDocoratorResource.addMethod(
       "GET",

@@ -23,7 +23,6 @@ export class SoracomClient {
     httpClient.interceptors.request.use(async (request: any) => {
       await this.checkIfAuthenticated();
       request.url = this.url(request.url);
-      console.log(request.url);
       request.headers["X-Soracom-API-Key"] = this.apiKey;
       request.headers["X-Soracom-Token"] = this.token;
       return request;

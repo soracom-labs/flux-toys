@@ -1,8 +1,10 @@
 import { SoracomClient } from "./soracom-client";
+import { GoogleSheetsClient } from "./google-sheets-client";
 import {
   SecretsManagerClient,
   GetSecretValueCommand,
 } from "@aws-sdk/client-secrets-manager";
+import { writeFileSync } from "fs";
 
 export async function fetchAndParseSoracomSecrets(): Promise<{
   soracomAuthKeyId: string;
@@ -35,7 +37,26 @@ export let getSoracomClient = async (
   );
 };
 
+export let getGoogleSheetsClient = async (
+  secreteName: string
+): Promise<GoogleSheetsClient> => {
+  const client = new SecretsManagerClient({});
+  const command = new GetSecretValueCommand({ SecretId: secreteName });
+
+  const response = await client.send(command);
+  if (!response.SecretString) {
+    throw new Error("Failed to fetch Google secrets");
+  }
+  await writeFileSync("/tmp/google-credentials.json", response.SecretString);
+
+  return new GoogleSheetsClient("/tmp/google-credentials.json");
+};
+
 // テスト用にgetSoracomClientをエクスポート
 export const setGetSoracomClient = (fn: typeof getSoracomClient) => {
   getSoracomClient = fn;
+};
+
+export const setGetGoogleSheetsClient = (fn: typeof getGoogleSheetsClient) => {
+  getGoogleSheetsClient = fn;
 };
