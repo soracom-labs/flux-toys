@@ -13,7 +13,7 @@
     "@aws-sdk/client-secrets-manager": "^3.614.0",
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
-    "jsonwebtoken": "^9.0.2"
+    "googleapis": "^140.0.1"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

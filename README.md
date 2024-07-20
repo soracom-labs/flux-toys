@@ -14,6 +14,26 @@ A source webhook which uploads SorCam image to Soracom Harvest Files.
 
 A source webhook which returns a series of data entries from Soracom Harvest Data.
 
+## Sinks
+
+Sinks are outlet components to send data from Soracom Flux.
+
+### Google Sheets
+
+This sink emits a row to Google Spreadsheet. Each rows should be consists of ordered items like CSV.
+
+![demo](./asset/google-sheets-sink-demo.gif)
+
+Usage
+
+```
+curl \
+-XPOST \
+-H 'Content-Type:application/json'
+-d '[["${timestamp1}", "${data1}],["${timestamp2}", "${data2}]]' 
+https://${hostname}/v1/sink/googlesheet?sheet_id=${sheetId}&sheet_name=${sheetName}
+```
+
 ## Deploy
 
 ```

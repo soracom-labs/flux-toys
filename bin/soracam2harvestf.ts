@@ -11,6 +11,7 @@ const props: Soracam2HarvestfStackProps = {
   soracomAuthKeyId: app.node.tryGetContext("soracomAuthKeyId"),
   soracomAuthKey: app.node.tryGetContext("soracomAuthKey"),
   harvestFilesPath: app.node.tryGetContext("harvestFilesPath"),
+  googleSecretname: app.node.tryGetContext("googleSecretname"),
 };
 
 new Soracam2HarvestfStack(app, "Soracam2HarvestfStack", props);
