@@ -1,6 +1,6 @@
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { handler, setGetSoracomClient } from "./soracom-air-metadata-sink";
+import { handler, setGetSoracomClient } from "./soracom-air-sms-sink";
 import { mockClient } from "aws-sdk-client-mock";
 import {
   SecretsManagerClient,
@@ -19,7 +19,7 @@ describe("Lambda handler", () => {
     axiosMock = new MockAdapter(axios);
 
     // Mocking SoracomClient's internal httpClient
-    soracomClient = new SoracomClient("fakeAuthKeyId", "fakeAuthKey", "jp");
+    soracomClient = new SoracomClient("fakeAuthKeyId", "fakeAuthKey", "g");
     soracomHttpClientMock = new MockAdapter(soracomClient["httpClient"]);
 
     setGetSoracomClient(async () => soracomClient);
@@ -37,7 +37,7 @@ describe("Lambda handler", () => {
 
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body).message).toBe(
-      "sim_id and tag_name are required in querystring parameters"
+      "sim_id is required in querystring parameters"
     );
   });
 
@@ -45,7 +45,6 @@ describe("Lambda handler", () => {
     const event = {
       queryStringParameters: {
         sim_id: "testSimId",
-        tag_name: "testTagName",
       },
     };
     const result = await handler(event);
@@ -54,32 +53,28 @@ describe("Lambda handler", () => {
     expect(JSON.parse(result.body).message).toBe("body is required.");
   });
 
-  it("should return 400 if body does not contain tag_value", async () => {
+  it("should return 400 if body does not contain text", async () => {
     const event = {
       queryStringParameters: {
         sim_id: "testSimId",
-        tag_name: "testTagName",
       },
       body: JSON.stringify({
-        wrong_parameter: "testTagName",
+        wrong_parameter: "testText",
       }),
     };
     const result = await handler(event);
 
     expect(result.statusCode).toBe(400);
-    expect(JSON.parse(result.body).message).toBe(
-      "body must contains tag_value."
-    );
+    expect(JSON.parse(result.body).message).toBe("body must contains text.");
   });
 
   it("should successfully process the request", async () => {
     const event = {
       queryStringParameters: {
         sim_id: "testSimId",
-        tag_name: "testTagName",
       },
       body: JSON.stringify({
-        tag_value: "testTagValue",
+        text: "testText",
       }),
     };
     // Mock the Secrets Manager response
@@ -90,20 +85,23 @@ describe("Lambda handler", () => {
       }),
     });
 
-    axiosMock.onPost("https://api.soracom.io/v1/auth").reply(200, {
+    axiosMock.onPost("https://g.api.soracom.io/v1/auth").reply(200, {
       apiKey: "testApiKey",
       token: "testToken",
       operatorId: "testOperatorId",
     });
 
     soracomHttpClientMock
-      .onPut(
-        "https://api.soracom.io/v1/sims/testSimId/tags/testTagName"
-      )
-      .reply(200, {});
+      .onPost("https://g.api.soracom.io/v1/sims/testSimId/send_sms")
+      .reply(200, {
+        messageId: "testMessageId",
+      });
 
     const result = await handler(event);
 
     expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body)).toEqual({
+      messageId: "testMessageId",
+    });
   });
 });

@@ -140,6 +140,41 @@ export class FluxToysStack extends cdk.Stack {
       sinkFunctionReferenceArray.push(GoogleSheetsSinkFunction);
     }
 
+    const SoracomAirMetadataSinkFunction = new cdk.aws_lambda.Function(
+      this,
+      "SoracomAirMetadataSinkFunction",
+      {
+        handler: "soracom-air-metadata-sink.handler",
+        code: cdk.aws_lambda.Code.fromAsset("lambda"),
+        ...nodeJSFunctionProps,
+      }
+    );
+    functionsReferenceArray.push(SoracomAirMetadataSinkFunction);
+    sinkFunctionReferenceArray.push(SoracomAirMetadataSinkFunction);
+
+    const SoracomAirMetadataSourceFunction = new cdk.aws_lambda.Function(
+      this,
+      "SoracomAirMetadataSourceFunction",
+      {
+        handler: "soracom-air-metadata-source.handler",
+        code: cdk.aws_lambda.Code.fromAsset("lambda"),
+        ...nodeJSFunctionProps,
+      }
+    );
+    functionsReferenceArray.push(SoracomAirMetadataSourceFunction);
+
+    const SoracomAirSmsSinkFunction = new cdk.aws_lambda.Function(
+      this,
+      "SoracomAirSmsSinkFunction",
+      {
+        handler: "soracom-air-sms-sink.handler",
+        code: cdk.aws_lambda.Code.fromAsset("lambda"),
+        ...nodeJSFunctionProps,
+      }
+    );
+    functionsReferenceArray.push(SoracomAirSmsSinkFunction);
+    sinkFunctionReferenceArray.push(SoracomAirSmsSinkFunction);
+
     const soracomSecret = new cdk.aws_secretsmanager.Secret(
       this,
       "SoracomAPICredentials",
@@ -165,12 +200,36 @@ export class FluxToysStack extends cdk.Stack {
       new cdk.aws_apigateway.LambdaIntegration(SoracamImageSourceFunction)
     );
 
+    const SoracomAirMetadataSourceResource = sourceResource.addResource("soracom_air_metadata");
+    SoracomAirMetadataSourceResource.addMethod(
+      "GET",
+      new cdk.aws_apigateway.LambdaIntegration(SoracomAirMetadataSourceFunction)
+    );
+
     const SoracomHarvestDataSourceRecourse = sourceResource.addResource(
       "soracom_harvest_data"
     );
     SoracomHarvestDataSourceRecourse.addMethod(
       "GET",
       new cdk.aws_apigateway.LambdaIntegration(SoracomHarvestDataSourceFunction)
+    );
+
+    const SoracomAirMetadataSinkFunctionResource = sinkResource.addResource("soracom_air_metadata");
+    SoracomAirMetadataSinkFunctionResource.addMethod(
+      "POST",
+      new cdk.aws_apigateway.LambdaIntegration(SoracomAirMetadataSinkFunction)
+    );
+
+
+
+
+
+    
+
+    const SoracomAirSmsSinkResource = sinkResource.addResource("soracom_air_sms");
+    SoracomAirSmsSinkResource.addMethod(
+      "POST",
+      new cdk.aws_apigateway.LambdaIntegration(SoracomAirSmsSinkFunction)
     );
   }
 }
