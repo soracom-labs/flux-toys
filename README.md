@@ -73,8 +73,8 @@ curl \
 -XPOST \
 -H 'Content-Type:application/json' \
 -H "x-api-key:${apikey}" \
--d '{"text":"${speech_text}"}
-https://${hostname}/v1/sink/phonecall?target=${phone_number}
+-d '{"text":"Hello, this is Flux app!"}' \
+"https://${hostname}/v1/sink/phonecall?target=${phone_number}"
 ```
 
 ### AWS IoT Core
@@ -116,6 +116,8 @@ npm cdk deploy \
   --context soracomAuthKeyId=${SORACOM_AUTH_KEY_ID} \ 
   --context soracomAuthKey=${SORACOM_AUTH_KEY} \
   --context harvestFilesPath=${HARVEST_FILES_DIR_PATH}
+  --context googleSecretname=${AWS_SECRETS_MANAGER_NAME_FOR_GOOGLESHEETS}
+  --context twilioSecretname=${AWS_SECRETS_MANAGER_NAME_FOR_TWILIO}
 ```
 
 

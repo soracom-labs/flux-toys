@@ -9,6 +9,7 @@ const props: FluxToysStackProps = {
   soracomAuthKey: app.node.tryGetContext("soracomAuthKey"),
   harvestFilesPath: app.node.tryGetContext("harvestFilesPath"),
   googleSecretname: app.node.tryGetContext("googleSecretname"),
+  twilioSecretname: app.node.tryGetContext("twilioSecretname"),
 };
 
 new FluxToysStack(app, "FluxToysStack", props);

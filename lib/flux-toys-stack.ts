@@ -6,6 +6,7 @@ export interface FluxToysStackProps extends cdk.StackProps {
   readonly soracomAuthKey?: string;
   readonly harvestFilesPath: string;
   readonly googleSecretname?: string;
+  readonly twilioSecretname?: string;
 }
 
 export class FluxToysStack extends cdk.Stack {
@@ -42,8 +43,41 @@ export class FluxToysStack extends cdk.Stack {
     };
 
     const functionsReferenceArray: cdk.aws_lambda.Function[] = [];
-    const sourceFunctionReferenceArray: cdk.aws_lambda.Function[] = [];
     const sinkFunctionReferenceArray: cdk.aws_lambda.Function[] = [];
+
+    if (props.twilioSecretname) {
+      const PhoneCallSinkFunction = new cdk.aws_lambda.Function(
+        this,
+        "PhoneCallSinkFunction",
+        {
+          handler: "phone-call-sink.handler",
+          code: cdk.aws_lambda.Code.fromAsset("lambda"),
+          ...nodeJSFunctionProps,
+        }
+      );
+
+      const twilioSecret = cdk.aws_secretsmanager.Secret.fromSecretNameV2(
+        this,
+        "TwilioSecret",
+        props.twilioSecretname
+      );
+      twilioSecret.grantRead(PhoneCallSinkFunction);
+
+      PhoneCallSinkFunction.addEnvironment(
+        "TWILIO_SECRET_NAME",
+        props.twilioSecretname
+      );
+
+      sinkResource
+        .addResource("phonecall")
+        .addMethod(
+          "POST",
+          new cdk.aws_apigateway.LambdaIntegration(PhoneCallSinkFunction)
+        );
+
+      functionsReferenceArray.push(PhoneCallSinkFunction);
+      sinkFunctionReferenceArray.push(PhoneCallSinkFunction);
+    }
 
     const SoracamImageSourceFunction = new cdk.aws_lambda.Function(
       this,
@@ -53,6 +87,10 @@ export class FluxToysStack extends cdk.Stack {
         code: cdk.aws_lambda.Code.fromAsset("lambda"),
         ...nodeJSFunctionProps,
       }
+    );
+    SoracamImageSourceFunction.addEnvironment(
+      "HARVEST_FILES_PATH",
+      props.harvestFilesPath
     );
     functionsReferenceArray.push(SoracamImageSourceFunction);
 

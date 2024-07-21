@@ -11,9 +11,11 @@
   "types": "./soracam-2-harvestf.d.ts",
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.614.0",
+    "@twilio/voice-sdk": "^2.11.2",
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
-    "googleapis": "^140.0.1"
+    "googleapis": "^140.0.1",
+    "twilio": "^5.2.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

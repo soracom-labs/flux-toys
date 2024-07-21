@@ -1,5 +1,6 @@
 import { SoracomClient } from "./soracom-client";
 import { GoogleSheetsClient } from "./google-sheets-client";
+import { TwilioClient } from "./twilio-client";
 import {
   SecretsManagerClient,
   GetSecretValueCommand,
@@ -37,6 +38,10 @@ export let getSoracomClient = async (
   );
 };
 
+export const setGetSoracomClient = (fn: typeof getSoracomClient) => {
+  getSoracomClient = fn;
+};
+
 export let getGoogleSheetsClient = async (
   secreteName: string
 ): Promise<GoogleSheetsClient> => {
@@ -52,11 +57,30 @@ export let getGoogleSheetsClient = async (
   return new GoogleSheetsClient("/tmp/google-credentials.json");
 };
 
-// テスト用にgetSoracomClientをエクスポート
-export const setGetSoracomClient = (fn: typeof getSoracomClient) => {
-  getSoracomClient = fn;
-};
-
 export const setGetGoogleSheetsClient = (fn: typeof getGoogleSheetsClient) => {
   getGoogleSheetsClient = fn;
+};
+
+export let getTwilioClient = async (
+  twilioSecretName: string
+): Promise<TwilioClient> => {
+  const client = new SecretsManagerClient({});
+  const command = new GetSecretValueCommand({ SecretId: twilioSecretName });
+
+  const response = await client.send(command);
+  if (!response.SecretString) {
+    throw new Error("Failed to fetch Twilio secrets");
+  }
+
+  const secrets = JSON.parse(response.SecretString);
+
+  return new TwilioClient(
+    secrets.accountSid,
+    secrets.authToken,
+    secrets.myPhoneNumber
+  );
+};
+
+export const setGetTwilioClient = (fn: typeof getTwilioClient) => {
+  getTwilioClient = fn;
 };
