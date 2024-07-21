@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosResponse } from "axios";
-import { HarvestRecord } from "../harvest-decorator";
+import { HarvestRecord } from "./model/soracom-harvest-data";
 
 export class SoracomClient {
   private soracomAuthKeyId: string;

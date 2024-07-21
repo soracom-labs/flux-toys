@@ -1,6 +1,6 @@
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { handler, setGetSoracomClient } from "./harvest-decorator"; // Lambda関数が定義されているファイルをインポート
+import { handler, setGetSoracomClient } from "./soracom-harvest-data-source";
 import { mockClient } from "aws-sdk-client-mock";
 import {
   SecretsManagerClient,

@@ -1,17 +1,14 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
-import {
-  Soracam2HarvestfStack,
-  Soracam2HarvestfStackProps,
-} from "../lib/soracam2harvestf-stack";
+import { FluxToysStack, FluxToysStackProps } from "../lib/flux-toys-stack";
 
 const app = new cdk.App();
-const props: Soracam2HarvestfStackProps = {
+const props: FluxToysStackProps = {
   soracomAuthKeyId: app.node.tryGetContext("soracomAuthKeyId"),
   soracomAuthKey: app.node.tryGetContext("soracomAuthKey"),
   harvestFilesPath: app.node.tryGetContext("harvestFilesPath"),
   googleSecretname: app.node.tryGetContext("googleSecretname"),
 };
 
-new Soracam2HarvestfStack(app, "Soracam2HarvestfStack", props);
+new FluxToysStack(app, "FluxToysStack", props);

@@ -1,15 +1,15 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
-export interface Soracam2HarvestfStackProps extends cdk.StackProps {
+export interface FluxToysStackProps extends cdk.StackProps {
   readonly soracomAuthKeyId?: string;
   readonly soracomAuthKey?: string;
   readonly harvestFilesPath: string;
   readonly googleSecretname?: string;
 }
 
-export class Soracam2HarvestfStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props: Soracam2HarvestfStackProps) {
+export class FluxToysStack extends cdk.Stack {
+  constructor(scope: Construct, id: string, props: FluxToysStackProps) {
     super(scope, id, props);
 
     const api = new cdk.aws_apigateway.RestApi(this, "FluxToysCollection", {
@@ -29,16 +29,14 @@ export class Soracam2HarvestfStack extends cdk.Stack {
     });
     plan.addApiKey(apiKey);
     plan.addApiStage({ stage: api.deploymentStage });
+    const sourceResource = api.root.addResource("source");
     const sinkResource = api.root.addResource("sink");
-    const fetcherResource = api.root.addResource("fetcher");
-    const decoratorResource = api.root.addResource("decorator");
 
     const nodeJSFunctionProps = {
       runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
       architecture: cdk.aws_lambda.Architecture.ARM_64,
       timeout: cdk.Duration.seconds(60),
       environment: {
-        SORACOM_AUTH_KEY_ID: props.soracomAuthKeyId!,
         HARVEST_FILES_PATH: props.harvestFilesPath,
       },
     };
@@ -47,34 +45,34 @@ export class Soracam2HarvestfStack extends cdk.Stack {
     const sourceFunctionReferenceArray: cdk.aws_lambda.Function[] = [];
     const sinkFunctionReferenceArray: cdk.aws_lambda.Function[] = [];
 
-    const SoracamImageFetcherFunction = new cdk.aws_lambda.Function(
+    const SoracamImageSourceFunction = new cdk.aws_lambda.Function(
       this,
-      "SoracamImageFetcherFunction",
+      "soracamImageSourceFunction",
       {
-        handler: "soracam-image-fetcher.handler",
+        handler: "soracam-image-source.handler",
         code: cdk.aws_lambda.Code.fromAsset("lambda"),
         ...nodeJSFunctionProps,
       }
     );
-    functionsReferenceArray.push(SoracamImageFetcherFunction);
+    functionsReferenceArray.push(SoracamImageSourceFunction);
 
-    const HarvestDecoratorFunction = new cdk.aws_lambda.Function(
+    const SoracomHarvestDataSourceFunction = new cdk.aws_lambda.Function(
       this,
-      "HarvestDecoratorFunction",
+      "SoracomHarvestDataSourceFunction",
       {
-        handler: "harvest-decorator.handler",
+        handler: "soracom-harvest-data-source.handler",
         code: cdk.aws_lambda.Code.fromAsset("lambda"),
         ...nodeJSFunctionProps,
       }
     );
-    functionsReferenceArray.push(HarvestDecoratorFunction);
+    functionsReferenceArray.push(SoracomHarvestDataSourceFunction);
 
     if (props.googleSecretname) {
       const GoogleSheetsSinkFunction = new cdk.aws_lambda.Function(
         this,
         "GoogleSheetsSinkFunction",
         {
-          handler: "googlesheets-sink.handler",
+          handler: "google-sheets-sink.handler",
           code: cdk.aws_lambda.Code.fromAsset("lambda"),
           ...nodeJSFunctionProps,
         }
@@ -106,9 +104,9 @@ export class Soracam2HarvestfStack extends cdk.Stack {
 
     const soracomSecret = new cdk.aws_secretsmanager.Secret(
       this,
-      "Soracam2HarvestfSecret",
+      "SoracomAPICredentials",
       {
-        secretName: "Soracam2HarvestfSecret",
+        secretName: "SoracomAPICredentials",
         secretStringValue: new cdk.SecretValue(
           JSON.stringify({
             soracomAuthKeyId: props.soracomAuthKeyId,
@@ -123,16 +121,18 @@ export class Soracam2HarvestfStack extends cdk.Stack {
       fn.addEnvironment("SECRET_NAME", soracomSecret.secretName);
     });
 
-    const soracamImageResource = fetcherResource.addResource("soracam_image");
+    const soracamImageResource = sourceResource.addResource("soracam_image");
     soracamImageResource.addMethod(
-      "POST",
-      new cdk.aws_apigateway.LambdaIntegration(SoracamImageFetcherFunction)
+      "GET",
+      new cdk.aws_apigateway.LambdaIntegration(SoracamImageSourceFunction)
     );
 
-    const harvestDocoratorResource = decoratorResource.addResource("harvest");
-    harvestDocoratorResource.addMethod(
+    const SoracomHarvestDataSourceRecourse = sourceResource.addResource(
+      "soracom_harvest_data"
+    );
+    SoracomHarvestDataSourceRecourse.addMethod(
       "GET",
-      new cdk.aws_apigateway.LambdaIntegration(HarvestDecoratorFunction)
+      new cdk.aws_apigateway.LambdaIntegration(SoracomHarvestDataSourceFunction)
     );
   }
 }

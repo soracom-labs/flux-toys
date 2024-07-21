@@ -1,6 +1,6 @@
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { handler, setGetSoracomClient } from "./soracam-image-fetcher"; // Lambda関数が定義されているファイルをインポート
+import { handler, setGetSoracomClient } from "./soracam-image-source";
 import { mockClient } from "aws-sdk-client-mock";
 import {
   SecretsManagerClient,
@@ -47,7 +47,7 @@ describe("Lambda handler", () => {
   });
 
   it("should successfully process the request", async () => {
-    const event = { queryStringParameters: { device: "testDevice" } };
+    const event = { queryStringParameters: { device_id: "testDevice" } };
 
     // Mock the Secrets Manager response
     secretsManagerMock.on(GetSecretValueCommand).resolves({

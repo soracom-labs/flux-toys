@@ -4,7 +4,7 @@ import { getSoracomClient, setGetSoracomClient } from "./lib/utils";
 export { setGetSoracomClient };
 
 export const handler = async (event: any = {}): Promise<any> => {
-  if (!event.queryStringParameters || !event.queryStringParameters.device) {
+  if (!event.queryStringParameters || !event.queryStringParameters.device_id) {
     return {
       statusCode: 400,
       body: JSON.stringify({
@@ -15,12 +15,12 @@ export const handler = async (event: any = {}): Promise<any> => {
 
   const harvestfilesPath = process.env.HARVEST_FILES_PATH!;
 
-  const device = event.queryStringParameters.device;
+  const deviceId = event.queryStringParameters.device_id;
   const soracomClient = await getSoracomClient();
 
   const time = Date.now() - 1000 * 10;
   const exportResult = await soracomClient.exportSoraCamDeviceRecordedImage(
-    device,
+    deviceId,
     time
   );
 
@@ -28,7 +28,7 @@ export const handler = async (event: any = {}): Promise<any> => {
 
   while (true) {
     const exportStatus = await soracomClient.getSoraCamDeviceExportedImage(
-      device,
+      deviceId,
       exportResult.exportId as string
     );
 
@@ -42,7 +42,7 @@ export const handler = async (event: any = {}): Promise<any> => {
     }
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  let path = `${harvestfilesPath}/${device}-${dayjs().format(
+  let path = `${harvestfilesPath}/${deviceId}-${dayjs().format(
     "YYYYMMDDHHmmss"
   )}.jpg`;
 

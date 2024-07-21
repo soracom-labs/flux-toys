@@ -1,8 +1,8 @@
 {
-  "name": "soracam2harvestf",
+  "name": "flux-toys",
   "version": "0.1.0",
   "bin": {
-    "soracam2harvestf": "bin/soracam2harvestf.js"
+    "flux-toys": "bin/flux-toys.js"
   },
   "scripts": {
     "installAll": "npm install && cd lambda && npm install",
@@ -13,6 +13,7 @@
     "cdk": "cdk"
   },
   "devDependencies": {
+    "@aws-cdk/assert": "^2.68.0",
     "@types/jest": "^29.5.12",
     "@types/node": "20.12.7",
     "aws-cdk": "2.141.0",
