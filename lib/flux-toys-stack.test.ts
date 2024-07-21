@@ -48,7 +48,7 @@ test("FluxToys Stack Test", () => {
   });
 
   template.hasResourceProperties("AWS::Lambda::Function", {
-    Handler: "googlesheets-sink.handler",
+    Handler: "google-sheets-sink.handler",
     Runtime: "nodejs20.x",
     Environment: {
       Variables: {

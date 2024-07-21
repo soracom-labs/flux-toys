@@ -42,7 +42,7 @@ describe("Lambda handler", () => {
 
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body).message).toBe(
-      "resource_id and resource_type is required in querystring parameters"
+      "resource_id and resource_type are required in querystring parameters"
     );
   });
 
