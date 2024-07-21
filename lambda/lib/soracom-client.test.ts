@@ -171,6 +171,8 @@ describe("SoracomClient", () => {
 
     expect(
       await client.putSimTags("testSimId", "testTag", "testValue")
-    ).toEqual(mockResponse);
+    ).toEqual({
+      testTag: "testValue",
+    });
   });
 });
