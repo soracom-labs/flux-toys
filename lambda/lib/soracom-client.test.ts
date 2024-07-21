@@ -134,4 +134,43 @@ describe("SoracomClient", () => {
 
     expect(result).toEqual(mockResponse);
   });
+
+  it("it should get sim data from Sorcom API", async () => {
+    const mockResponse = {
+      simId: "testSimId",
+      tags: {
+        testTag: "testValue",
+      },
+    };
+
+    client["apiKey"] = "fakeApiKey";
+    client["token"] = "fakeToken";
+
+    httpClientMock
+      .onGet(/https:\/\/api\.soracom\.io\/v1\/sims\/testSimId/)
+      .reply(200, mockResponse);
+
+    const result = await client.getSim("testSimId");
+    expect(result).toEqual(mockResponse);
+  });
+
+  it("should update sim tags using put request", async () => {
+    const mockResponse = {
+      simId: "testSimId",
+      tags: {
+        testTag: "testValue",
+      },
+    };
+
+    client["apiKey"] = "fakeApiKey";
+    client["token"] = "fakeToken";
+
+    httpClientMock
+      .onPut(/https:\/\/api\.soracom\.io\/v1\/sims\/testSimId\/tags/)
+      .reply(200, mockResponse);
+
+    expect(
+      await client.putSimTags("testSimId", "testTag", "testValue")
+    ).toEqual(mockResponse);
+  });
 });

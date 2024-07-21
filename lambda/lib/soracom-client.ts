@@ -142,4 +142,32 @@ export class SoracomClient {
 
     return result.data as HarvestRecord[];
   }
+
+  /**
+   * getSim
+   * @param simId
+   */
+  public async getSim(simId: string): Promise<any> {
+    const result = await this.httpClient.get(`/sims/${simId}`);
+    return result.data;
+  }
+
+  /**
+   * putSimTags
+   * @param simId
+   * @param tagName
+   * @param tagValue
+   */
+  public async putSimTags(
+    simId: string,
+    tagName: string,
+    tagValue: string
+  ): Promise<any> {
+    const result = await this.httpClient.put(`/sims/${simId}/tags/${tagName}`, [
+      {
+        tagValue,
+      },
+    ]);
+    return result.data.tags;
+  }
 }
