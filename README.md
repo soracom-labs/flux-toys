@@ -58,8 +58,8 @@ curl \
 -XPOST \
 -H 'Content-Type:application/json' \
 -H "x-api-key:${apikey}" \
--d '{"text":"${speech_text}"} \
-https://${hostname}/v1/sink/soracom_sms_api?sim_id=${sim_id}
+-d '{"text":\"${text}\"} \
+"https://${hostname}/v1/sink/soracom_sms_api?sim_id=${sim_id}"
 ```
 
 ### Phone call

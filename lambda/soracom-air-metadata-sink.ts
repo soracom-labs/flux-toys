@@ -42,6 +42,7 @@ export const handler = async (event: any = {}): Promise<any> => {
 
   const soracomClient = await getSoracomClient();
 
+  //TODO: Add error handling
   await soracomClient.putSimTags(simId, tagName, tagValue).catch((e) => {
     console.error(e);
     return {
