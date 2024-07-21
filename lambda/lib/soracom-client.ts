@@ -13,7 +13,7 @@ export class SoracomClient {
   constructor(
     soracomAuthKeyId: string,
     soracomAuthKey: string,
-    coverageType: string = "g"
+    coverageType: string
   ) {
     this.soracomAuthKeyId = soracomAuthKeyId;
     this.soracomAuthKey = soracomAuthKey;

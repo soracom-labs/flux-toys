@@ -19,7 +19,7 @@ describe("Lambda handler", () => {
     axiosMock = new MockAdapter(axios);
 
     // Mocking SoracomClient's internal httpClient
-    soracomClient = new SoracomClient("fakeAuthKeyId", "fakeAuthKey", "jp");
+    soracomClient = new SoracomClient("fakeAuthKeyId", "fakeAuthKey", "g");
     soracomHttpClientMock = new MockAdapter(soracomClient["httpClient"]);
 
     setGetSoracomClient(async () => soracomClient);
@@ -85,14 +85,14 @@ describe("Lambda handler", () => {
       }),
     });
 
-    axiosMock.onPost("https://api.soracom.io/v1/auth").reply(200, {
+    axiosMock.onPost("https://g.api.soracom.io/v1/auth").reply(200, {
       apiKey: "testApiKey",
       token: "testToken",
       operatorId: "testOperatorId",
     });
 
     soracomHttpClientMock
-      .onPost("https://api.soracom.io/v1/sims/testSimId/send_sms")
+      .onPost("https://g.api.soracom.io/v1/sims/testSimId/send_sms")
       .reply(200, {
         messageId: "testMessageId",
       });

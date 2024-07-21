@@ -39,8 +39,9 @@ export const handler = async (event: any = {}): Promise<any> => {
   const simId = event.queryStringParameters.sim_id;
   const tagName = event.queryStringParameters.tag_name;
   const tagValue = data.tag_value;
+  const coverageType = event.queryStringParameters.coverage_type || "jp";
 
-  const soracomClient = await getSoracomClient();
+  const soracomClient = await getSoracomClient(coverageType);
 
   //TODO: Add error handling
   await soracomClient.putSimTags(simId, tagName, tagValue).catch((e) => {

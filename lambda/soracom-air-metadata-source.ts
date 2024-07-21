@@ -12,8 +12,9 @@ export const handler = async (event: any = {}): Promise<any> => {
   }
 
   const simId = event.queryStringParameters.sim_id;
+  const coverageType = event.queryStringParameters.coverage_type || "jp";
 
-  const soracomClient = await getSoracomClient();
+  const soracomClient = await getSoracomClient(coverageType);
 
   const simData = await soracomClient.getSim(simId).catch((e) => {
     console.error(e);

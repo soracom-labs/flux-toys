@@ -6,6 +6,17 @@ This project provides a series of sources, sinks and integrations those we can p
 
 ## Sources
 
+### Soracom Air Metadata
+
+A source component to fetch metadata of Soracom Air Sim.
+
+```
+curl \
+-XGET \
+-H "x-api-key:${apikey}" \
+"https://${hostname}/v1/source/soracom_air_metadata?sim_id=${sim_id}&tag_name=test"
+```
+
 ### SoraCam(Soracom Cloud Camera Service)
 
 A source webhook which uploads SorCam image to Soracom Harvest Files.
@@ -32,7 +43,7 @@ curl \
 
 Sinks are outlet components to send data from Soracom Flux.
 
-### SORACOM SIM metadata
+### SORACOM Air metadata
 
 This sink updates SORACOM SIM meta data with posted key and value.
 
@@ -41,10 +52,10 @@ Usage
 ```
 curl \
 -XPOST \
--H 'Content-Type:application/json' \ 
+-H 'Content-Type:application/json' \
 -H "x-api-key:${apikey}" \
--d '{"key":"${key}", "value":"${value}"} \
-https://${hostname}/v1/sink/soracom_sim_metadata?sim_id=${sim_id}
+-d '{"tag_value":"this is a test message."}' \
+"https://${hostname}/v1/sink/soracom_air_metadata?sim_id=${sim_id}&tag_name=test"
 ```
 
 ### SORACOM SMS API
@@ -58,8 +69,8 @@ curl \
 -XPOST \
 -H 'Content-Type:application/json' \
 -H "x-api-key:${apikey}" \
--d '{"text":\"${text}\"} \
-"https://${hostname}/v1/sink/soracom_sms_api?sim_id=${sim_id}"
+-d '{"text":"this is a test message."}' \
+"https://${hostname}/v1/sink/soracom_air_sms?sim_id=${sim_id}"
 ```
 
 ### Phone call
@@ -77,7 +88,7 @@ curl \
 "https://${hostname}/v1/sink/phonecall?target=${phone_number}"
 ```
 
-### AWS IoT Core
+### AWS IoT Core(To be implemented)
 
 This sink publish a message to AWS IoT Core with posted topic.
 

@@ -31,9 +31,10 @@ export const handler = async (event: any = {}): Promise<any> => {
   }
 
   const simId = event.queryStringParameters.sim_id;
+  const coverageType = "g";
   const text = data.text;
 
-  const soracomClient = await getSoracomClient();
+  const soracomClient = await getSoracomClient(coverageType);
 
   const result = await soracomClient
     .sendSMStoSim(simId, text)
