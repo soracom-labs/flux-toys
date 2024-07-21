@@ -170,4 +170,27 @@ export class SoracomClient {
     ]);
     return result.data.tags;
   }
+
+  /**
+   * sendSMStoSim
+   * @param simId: string
+   * @param payload: string
+   * @returns Promise<{
+   *  messageId: string
+   * }>
+   */
+  public async sendSMStoSim(
+    simId: string,
+    payload: string
+  ): Promise<{ messageId: string }> {
+    const result = await this.httpClient.post(`/sims/${simId}/send_sms`, {
+      payload,
+    });
+
+    if (!result.data || !result.data.messageId) {
+      throw new Error(`Failed to send SMS: ${JSON.stringify(result)}`);
+    }
+
+    return result.data;
+  }
 }

@@ -175,4 +175,21 @@ describe("SoracomClient", () => {
       testTag: "testValue",
     });
   });
+
+  it("should send sms to sims", async () => {
+    const mockResponse = {
+      messageId: "testMessageId",
+    };
+
+    client["apiKey"] = "fakeApiKey";
+    client["token"] = "fakeToken";
+
+    httpClientMock
+      .onPost(/https:\/\/api\.soracom\.io\/v1\/sims\/testSimId\/send_sms/)
+      .reply(200, mockResponse);
+
+    const result = await client.sendSMStoSim("testSimId", "testPayload");
+
+    expect(result).toEqual(mockResponse);
+  });
 });
