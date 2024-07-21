@@ -1,6 +1,6 @@
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
-import { handler, setGetSoracomClient } from "./soracam-image-fetcher"; // Lambda関数が定義されているファイルをインポート
+import { handler, setGetSoracomClient } from "./soracom-harvest-data-source";
 import { mockClient } from "aws-sdk-client-mock";
 import {
   SecretsManagerClient,
@@ -42,12 +42,17 @@ describe("Lambda handler", () => {
 
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body).message).toBe(
-      "device is required in querystring parameters"
+      "resource_id and resource_type are required in querystring parameters"
     );
   });
 
   it("should successfully process the request", async () => {
-    const event = { queryStringParameters: { device: "testDevice" } };
+    const event = {
+      queryStringParameters: {
+        resource_id: "testDevice",
+        resource_type: "device",
+      },
+    };
 
     // Mock the Secrets Manager response
     secretsManagerMock.on(GetSecretValueCommand).resolves({
@@ -64,35 +69,24 @@ describe("Lambda handler", () => {
       operatorId: "testOperatorId",
     });
 
-    soracomHttpClientMock
-      .onPost(
-        "https://api.soracom.io/v1/sora_cam/devices/testDevice/images/exports"
-      )
-      .reply(200, {
-        exportId: "testExportId",
-      });
+    const mockResult = [
+      {
+        time: 1622547800,
+        contentType: "application/json",
+        content: '{"temperature": 25.5}',
+      },
+    ];
 
     soracomHttpClientMock
-      .onGet(
-        "https://api.soracom.io/v1/sora_cam/devices/testDevice/images/exports/testExportId"
-      )
-      .reply(200, {
-        status: "completed",
-        url: "https://example.com/test.jpg",
-      });
-
-    axiosMock
-      .onGet("https://example.com/test.jpg", { responseType: "arraybuffer" })
-      .reply(200, new ArrayBuffer(8));
-
-    soracomHttpClientMock
-      .onPut(
-        /https:\/\/api.soracom.io\/v1\/files\/private\/test\/path\/testDevice-\d{14}.jpg/
-      )
-      .reply(201);
+      .onGet(/https:\/\/api\.soracom\.io\/v1\/data.+/)
+      .reply(200, mockResult);
 
     const result = await handler(event);
-
-    expect(result.statusCode).toBe(201);
+    expect(JSON.parse(result.body).data).toEqual([
+      {
+        time: 1622547800,
+        content: { temperature: 25.5 },
+      },
+    ]);
   });
 });

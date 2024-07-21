@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/soracam2harvestf.ts",
+  "app": "npx ts-node --prefer-ts-exts bin/flux-toys.ts",
   "watch": {
     "include": [
       "**"

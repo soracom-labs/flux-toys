@@ -1,24 +1,10 @@
 import { getSoracomClient, setGetSoracomClient } from "./lib/utils";
 export { setGetSoracomClient };
-
-export interface HarvestRecord {
-  time: number;
-  content: any;
-  contentType: string;
-}
-
-export interface ParsedHarvestRecord {
-  time: number;
-  content: any;
-}
-
-export interface HarvestDecoratorResult {
-  resource_id: string;
-  resource_type: string;
-  from_unixtime: number;
-  data: ParsedHarvestRecord[];
-  num_records: number;
-}
+import {
+  HarvestRecord,
+  ParsedHarvestRecord,
+  HarvestDecoratorResult,
+} from "./lib/model/soracom-harvest-data";
 
 export const parseHarvestRecords = (
   record: HarvestRecord[]
@@ -45,7 +31,7 @@ export const handler = async (event: any = {}): Promise<any> => {
       statusCode: 400,
       body: JSON.stringify({
         message:
-          "resource_id and resource_type is required in querystring parameters",
+          "resource_id and resource_type are required in querystring parameters",
       }),
     };
   }
