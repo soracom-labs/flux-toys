@@ -18,6 +18,60 @@ A source webhook which returns a series of data entries from Soracom Harvest Dat
 
 Sinks are outlet components to send data from Soracom Flux.
 
+### SORACOM SIM metadata
+
+This sink updates SORACOM SIM meta data with posted key and value.
+
+Usage
+
+```
+curl \
+-XPOST \
+-H 'Content-Type:application/json'
+-d '{"key":"${key}", "value":"${value}"}
+https://${hostname}/v1/sink/soracom_sim_metadata?sim_id=${sim_id}
+```
+
+### SORACOM SMS API
+
+This sink sends a SMS with posted text.
+
+Usage
+
+```
+curl \
+-XPOST \
+-H 'Content-Type:application/json'
+-d '{"text":"${speech_text}"}
+https://${hostname}/v1/sink/soracom_sms_api?sim_id=${sim_id}
+```
+
+### Phone call
+
+This sink makes a phone call with posted text.
+
+Usage
+
+```
+curl \
+-XPOST \
+-H 'Content-Type:application/json'
+-d '{"text":"${speech_text}"}
+https://${hostname}/v1/sink/phonecall?target=${phone_number}
+```
+
+### AWS IoT Core
+
+This sink publish a message to AWS IoT Core with posted topic.
+
+```
+curl \
+-XPOST \
+-H 'Content-Type:application/json'
+-d '{"topic":"${topic}","${message}"}
+https://${hostname}/v1/sink/aws_iot_core
+```
+
 ### Google Sheets
 
 This sink emits a row to Google Spreadsheet. Each rows should be consists of ordered items like CSV.
@@ -30,7 +84,7 @@ Usage
 curl \
 -XPOST \
 -H 'Content-Type:application/json'
--d '[["${timestamp1}", "${data1}],["${timestamp2}", "${data2}]]' 
+-d '[["${column1}", "${column2}", "${column3}", "${column4}", ... ]]' 
 https://${hostname}/v1/sink/googlesheet?sheet_id=${sheetId}&sheet_name=${sheetName}
 ```
 
