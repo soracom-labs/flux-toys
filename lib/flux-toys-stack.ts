@@ -1,10 +1,24 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
+import { SoracamImageSourceConstruct } from "./soracam-image-source";
+import { SoracomAirMetadataSourceConstruct } from "./soracom-air-metadata-source";
+import { SoracomAirMetadataSinkConstruct } from "./soracom-air-metadata-sink";
+import { SoracomHarvestDataSourceConstruct } from "./soracom-harvest-data-source";
+import { SoracomAirSmsSinkConstruct } from "./soracom-air-sms-sink";
+import { PhoneCallSinkConstruct } from "./phone-call-sink";
+import { GoogleSheetsSinkConstruct } from "./google-sheets-sink";
 
 export interface FluxToysStackProps extends cdk.StackProps {
-  readonly soracomAuthKeyId?: string;
-  readonly soracomAuthKey?: string;
-  readonly harvestFilesPath: string;
+  readonly deploySoracomHarvestDataSource?: boolean;
+  readonly deploySoracomAirMetadataSource?: boolean;
+  readonly deploySoracomAirMetadataSink?: boolean;
+  readonly deploySoracomAirSmsSink?: boolean;
+  readonly deploySoracamImageSource?: boolean;
+  readonly deployPhoneCallSink?: boolean;
+  readonly deployGoogleSheetsSink?: boolean;
+  readonly soracomAuthKeyId: string;
+  readonly soracomAuthKey: string;
+  readonly harvestFilesPath?: string;
   readonly googleSecretname?: string;
   readonly twilioSecretname?: string;
 }
@@ -12,6 +26,8 @@ export interface FluxToysStackProps extends cdk.StackProps {
 export class FluxToysStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: FluxToysStackProps) {
     super(scope, id, props);
+
+    console.log("props", props);
 
     const api = new cdk.aws_apigateway.RestApi(this, "FluxToysCollection", {
       defaultMethodOptions: {
@@ -33,148 +49,6 @@ export class FluxToysStack extends cdk.Stack {
     const sourceResource = api.root.addResource("source");
     const sinkResource = api.root.addResource("sink");
 
-    const nodeJSFunctionProps = {
-      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
-      architecture: cdk.aws_lambda.Architecture.ARM_64,
-      timeout: cdk.Duration.seconds(60),
-      environment: {
-        HARVEST_FILES_PATH: props.harvestFilesPath,
-      },
-    };
-
-    const functionsReferenceArray: cdk.aws_lambda.Function[] = [];
-    const sinkFunctionReferenceArray: cdk.aws_lambda.Function[] = [];
-
-    if (props.twilioSecretname) {
-      const PhoneCallSinkFunction = new cdk.aws_lambda.Function(
-        this,
-        "PhoneCallSinkFunction",
-        {
-          handler: "phone-call-sink.handler",
-          code: cdk.aws_lambda.Code.fromAsset("lambda"),
-          ...nodeJSFunctionProps,
-        }
-      );
-
-      const twilioSecret = cdk.aws_secretsmanager.Secret.fromSecretNameV2(
-        this,
-        "TwilioSecret",
-        props.twilioSecretname
-      );
-      twilioSecret.grantRead(PhoneCallSinkFunction);
-
-      PhoneCallSinkFunction.addEnvironment(
-        "TWILIO_SECRET_NAME",
-        props.twilioSecretname
-      );
-
-      sinkResource
-        .addResource("phonecall")
-        .addMethod(
-          "POST",
-          new cdk.aws_apigateway.LambdaIntegration(PhoneCallSinkFunction)
-        );
-
-      functionsReferenceArray.push(PhoneCallSinkFunction);
-      sinkFunctionReferenceArray.push(PhoneCallSinkFunction);
-    }
-
-    const SoracamImageSourceFunction = new cdk.aws_lambda.Function(
-      this,
-      "soracamImageSourceFunction",
-      {
-        handler: "soracam-image-source.handler",
-        code: cdk.aws_lambda.Code.fromAsset("lambda"),
-        ...nodeJSFunctionProps,
-      }
-    );
-    SoracamImageSourceFunction.addEnvironment(
-      "HARVEST_FILES_PATH",
-      props.harvestFilesPath
-    );
-    functionsReferenceArray.push(SoracamImageSourceFunction);
-
-    const SoracomHarvestDataSourceFunction = new cdk.aws_lambda.Function(
-      this,
-      "SoracomHarvestDataSourceFunction",
-      {
-        handler: "soracom-harvest-data-source.handler",
-        code: cdk.aws_lambda.Code.fromAsset("lambda"),
-        ...nodeJSFunctionProps,
-      }
-    );
-    functionsReferenceArray.push(SoracomHarvestDataSourceFunction);
-
-    if (props.googleSecretname) {
-      const GoogleSheetsSinkFunction = new cdk.aws_lambda.Function(
-        this,
-        "GoogleSheetsSinkFunction",
-        {
-          handler: "google-sheets-sink.handler",
-          code: cdk.aws_lambda.Code.fromAsset("lambda"),
-          ...nodeJSFunctionProps,
-        }
-      );
-
-      const googleSecret = cdk.aws_secretsmanager.Secret.fromSecretNameV2(
-        this,
-        "GoogleSecret",
-        props.googleSecretname
-      );
-
-      googleSecret.grantRead(GoogleSheetsSinkFunction);
-
-      GoogleSheetsSinkFunction.addEnvironment(
-        "GOOGLE_SECRET_NAME",
-        googleSecret.secretName
-      );
-
-      sinkResource
-        .addResource("googlesheets")
-        .addMethod(
-          "POST",
-          new cdk.aws_apigateway.LambdaIntegration(GoogleSheetsSinkFunction)
-        );
-
-      functionsReferenceArray.push(GoogleSheetsSinkFunction);
-      sinkFunctionReferenceArray.push(GoogleSheetsSinkFunction);
-    }
-
-    const SoracomAirMetadataSinkFunction = new cdk.aws_lambda.Function(
-      this,
-      "SoracomAirMetadataSinkFunction",
-      {
-        handler: "soracom-air-metadata-sink.handler",
-        code: cdk.aws_lambda.Code.fromAsset("lambda"),
-        ...nodeJSFunctionProps,
-      }
-    );
-    functionsReferenceArray.push(SoracomAirMetadataSinkFunction);
-    sinkFunctionReferenceArray.push(SoracomAirMetadataSinkFunction);
-
-    const SoracomAirMetadataSourceFunction = new cdk.aws_lambda.Function(
-      this,
-      "SoracomAirMetadataSourceFunction",
-      {
-        handler: "soracom-air-metadata-source.handler",
-        code: cdk.aws_lambda.Code.fromAsset("lambda"),
-        ...nodeJSFunctionProps,
-      }
-    );
-    functionsReferenceArray.push(SoracomAirMetadataSourceFunction);
-
-    const SoracomAirSmsSinkFunction = new cdk.aws_lambda.Function(
-      this,
-      "SoracomAirSmsSinkFunction",
-      {
-        handler: "soracom-air-sms-sink.handler",
-        code: cdk.aws_lambda.Code.fromAsset("lambda"),
-        ...nodeJSFunctionProps,
-      }
-    );
-    functionsReferenceArray.push(SoracomAirSmsSinkFunction);
-    sinkFunctionReferenceArray.push(SoracomAirSmsSinkFunction);
-
     const soracomSecret = new cdk.aws_secretsmanager.Secret(
       this,
       "SoracomAPICredentials",
@@ -189,47 +63,95 @@ export class FluxToysStack extends cdk.Stack {
       }
     );
 
-    functionsReferenceArray.forEach((fn: cdk.aws_lambda.Function) => {
-      soracomSecret.grantRead(fn);
-      fn.addEnvironment("SECRET_NAME", soracomSecret.secretName);
-    });
+    const nodeJSFunctionProps = {
+      runtime: cdk.aws_lambda.Runtime.NODEJS_20_X,
+      architecture: cdk.aws_lambda.Architecture.ARM_64,
+      timeout: cdk.Duration.seconds(60),
+    };
 
-    const soracamImageResource = sourceResource.addResource("soracam_image");
-    soracamImageResource.addMethod(
-      "GET",
-      new cdk.aws_apigateway.LambdaIntegration(SoracamImageSourceFunction)
-    );
+    if (props.deploySoracamImageSource) {
+      if (!props.harvestFilesPath) {
+        throw new Error(
+          "harvestFilesPath is required for SoracamImageSourceConstruct"
+        );
+      }
 
-    const SoracomAirMetadataSourceResource = sourceResource.addResource("soracom_air_metadata");
-    SoracomAirMetadataSourceResource.addMethod(
-      "GET",
-      new cdk.aws_apigateway.LambdaIntegration(SoracomAirMetadataSourceFunction)
-    );
+      new SoracamImageSourceConstruct(this, "SoracamImageSourceConstruct", {
+        nodeJSFunctionProps,
+        sourceResource,
+        soracomSecret,
+        harvestFilesPath: props.harvestFilesPath,
+      });
+    }
 
-    const SoracomHarvestDataSourceRecourse = sourceResource.addResource(
-      "soracom_harvest_data"
-    );
-    SoracomHarvestDataSourceRecourse.addMethod(
-      "GET",
-      new cdk.aws_apigateway.LambdaIntegration(SoracomHarvestDataSourceFunction)
-    );
+    if (props.deploySoracomAirMetadataSource) {
+      new SoracomAirMetadataSourceConstruct(
+        this,
+        "SoracomAirMetadataSourceConstruct",
+        {
+          nodeJSFunctionProps,
+          sourceResource,
+          soracomSecret,
+        }
+      );
+    }
 
-    const SoracomAirMetadataSinkFunctionResource = sinkResource.addResource("soracom_air_metadata");
-    SoracomAirMetadataSinkFunctionResource.addMethod(
-      "POST",
-      new cdk.aws_apigateway.LambdaIntegration(SoracomAirMetadataSinkFunction)
-    );
+    if (props.deploySoracomAirMetadataSink) {
+      new SoracomAirMetadataSinkConstruct(
+        this,
+        "SoracomAirMetadataSinkConstruct",
+        {
+          nodeJSFunctionProps,
+          sinkResource,
+          soracomSecret,
+        }
+      );
+    }
 
+    if (props.deploySoracomAirSmsSink) {
+      new SoracomAirSmsSinkConstruct(this, "SoracomAirSmsSinkConstruct", {
+        nodeJSFunctionProps,
+        sinkResource,
+        soracomSecret,
+      });
+    }
 
+    if (props.deploySoracomHarvestDataSource) {
+      new SoracomHarvestDataSourceConstruct(
+        this,
+        "SoracomHarvestDataSourceConstruct",
+        {
+          nodeJSFunctionProps,
+          sourceResource,
+          soracomSecret,
+        }
+      );
+    }
 
+    if (props.deployPhoneCallSink) {
+      if (!props.twilioSecretname) {
+        throw new Error(
+          "twilioSecretname is required for PhoneCallSinkConstruct"
+        );
+      }
+      new PhoneCallSinkConstruct(this, "PhoneCallSinkConstruct", {
+        nodeJSFunctionProps,
+        sinkResource,
+        twilioSecretname: props.twilioSecretname,
+      });
+    }
 
-
-    
-
-    const SoracomAirSmsSinkResource = sinkResource.addResource("soracom_air_sms");
-    SoracomAirSmsSinkResource.addMethod(
-      "POST",
-      new cdk.aws_apigateway.LambdaIntegration(SoracomAirSmsSinkFunction)
-    );
+    if (props.deployGoogleSheetsSink) {
+      if (!props.googleSecretname) {
+        throw new Error(
+          "googleSecretname is required for GoogleSheetsSinkConstruct"
+        );
+      }
+      new GoogleSheetsSinkConstruct(this, "GoogleSheetsSinkConstruct", {
+        nodeJSFunctionProps,
+        sinkResource,
+        googleSecretname: props.googleSecretname,
+      });
+    }
   }
 }
