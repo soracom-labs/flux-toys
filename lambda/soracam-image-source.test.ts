@@ -99,5 +99,6 @@ describe("Lambda handler", () => {
     const result = await handler(event);
 
     expect(result.statusCode).toBe(201);
+    expect(JSON.parse(result.body).message).toBe("Image uploaded.");
   });
 });
