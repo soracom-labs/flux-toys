@@ -4,18 +4,23 @@ import { getSoracomClient, setGetSoracomClient } from "./lib/utils";
 export { setGetSoracomClient };
 
 export const handler = async (event: any = {}): Promise<any> => {
-  if (!event.queryStringParameters || !event.queryStringParameters.device_id) {
+  if (
+    !event.queryStringParameters ||
+    !event.queryStringParameters.device_id ||
+    !event.queryStringParameters.upload_directory
+  ) {
     return {
       statusCode: 400,
       body: JSON.stringify({
-        message: "device is required in querystring parameters",
+        message:
+          "device_id and upload_directory are required in querystring parameters",
       }),
     };
   }
 
   const harvestfilesPath = process.env.HARVEST_FILES_PATH!;
-
   const deviceId = event.queryStringParameters.device_id;
+  const uploadDirectory = event.queryStringParameters.upload_directory;
   const soracomClient = await getSoracomClient();
 
   const time = Date.now() - 1000 * 10;
@@ -42,7 +47,7 @@ export const handler = async (event: any = {}): Promise<any> => {
     }
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  let path = `${harvestfilesPath}/${deviceId}-${dayjs().format(
+  let path = `${harvestfilesPath}/${uploadDirectory}/${deviceId}-${dayjs().format(
     "YYYYMMDDHHmmss"
   )}.jpg`;
 
