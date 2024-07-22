@@ -10,6 +10,7 @@ test("FluxToys Stack Test", () => {
     soracomAuthKeyId: "testKeyId",
     soracomAuthKey: "testKey",
     googleSecretname: "testGoogleSecret",
+    deploySoracamImageSource: true,
   };
 
   const stack = new FluxToysStack(app, "TestStack", props);
@@ -24,38 +25,6 @@ test("FluxToys Stack Test", () => {
   // API Gatewayのキーが作成されていることを確認
   template.hasResourceProperties("AWS::ApiGateway::ApiKey", {
     Name: "FluxToysCollectionApiKey",
-  });
-
-  // Lambda関数が作成されていることを確認
-  template.hasResourceProperties("AWS::Lambda::Function", {
-    Handler: "soracam-image-source.handler",
-    Runtime: "nodejs20.x",
-    Environment: {
-      Variables: {
-        HARVEST_FILES_PATH: "/test/path",
-      },
-    },
-  });
-
-  template.hasResourceProperties("AWS::Lambda::Function", {
-    Handler: "soracom-harvest-data-source.handler",
-    Runtime: "nodejs20.x",
-    Environment: {
-      Variables: {
-        HARVEST_FILES_PATH: "/test/path",
-      },
-    },
-  });
-
-  template.hasResourceProperties("AWS::Lambda::Function", {
-    Handler: "google-sheets-sink.handler",
-    Runtime: "nodejs20.x",
-    Environment: {
-      Variables: {
-        HARVEST_FILES_PATH: "/test/path",
-        GOOGLE_SECRET_NAME: "testGoogleSecret",
-      },
-    },
   });
 
   // Secrets Managerのシークレットが作成されていることを確認

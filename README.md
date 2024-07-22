@@ -2,6 +2,15 @@
 
 A collective of webhooks those can be played around with Soracom Flux. Each webhook provides source function which fetch data from outside Soracom Flux, or sink function which emits data to outside of Soracom Flux.
 
+Current features:
+- Soracom Air Metadata source
+- SoraCam Image source
+- Soracom Harvest Data source
+- Soracom Air Metadata sink
+- Soracom Air SMS sink
+- Phone call sink
+- Google spreadsheet sink
+
 ## Sources
 
 ### Soracom Air Metadata
@@ -169,12 +178,19 @@ Query parameters
 ```
 npm run installAll
 npm run build
-npm cdk deploy \
-  --context soracomAuthKeyId=${SORACOM_AUTH_KEY_ID} \ 
-  --context soracomAuthKey=${SORACOM_AUTH_KEY} \
-  --context harvestFilesPath=${HARVEST_FILES_DIR_PATH} \
-  --context googleSecretname=${AWS_SECRETS_MANAGER_NAME_FOR_GOOGLESHEETS} \  # optional: required for google spreadsheet sink
-  --context twilioSecretname=${AWS_SECRETS_MANAGER_NAME_FOR_TWILIO} # optional: required for phone call sink
+npx cdk deploy \
+  --context deploySoracomAirMetadataSink=1 \
+  --context deploySoracomAirMetadataSource=1 \
+  --context deploySoracomAirSmsSink=1 \
+  --context deploySoracomHarvestDataSource=1 \
+  --context deploySoracomImageSource=1 \
+  --context deployGoogleSheetsSink=1 \
+  --context deployPhoneCallSink=1 \
+  --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
+  --context soracomAuthKey="${SORACOM_AUTH_KEY}" \
+  --context harvestFilesPath="${HARVEST_FILES_DIR_PATH}" \
+  --context googleSecretname="${AWS_SECRETS_MANAGER_NAME_FOR_GOOGLESHEETS}" \
+  --context twilioSecretname="${AWS_SECRETS_MANAGER_NAME_FOR_TWILIO}"
 ```
 
 ### You will need IAM permission below

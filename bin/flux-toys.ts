@@ -10,6 +10,33 @@ const props: FluxToysStackProps = {
   harvestFilesPath: app.node.tryGetContext("harvestFilesPath"),
   googleSecretname: app.node.tryGetContext("googleSecretname"),
   twilioSecretname: app.node.tryGetContext("twilioSecretname"),
+  deploySoracomAirMetadataSink: app.node.tryGetContext(
+    "deploySoracomAirMetadataSink"
+  )
+    ? true
+    : false,
+  deploySoracomAirMetadataSource: app.node.tryGetContext(
+    "deploySoracomAirMetadataSource"
+  )
+    ? true
+    : false,
+  deploySoracomAirSmsSink: app.node.tryGetContext("deploySoracomAirSmsSink")
+    ? true
+    : false,
+  deploySoracomHarvestDataSource: app.node.tryGetContext(
+    "deploySoracomHarvestDataSource"
+  )
+    ? true
+    : false,
+  deploySoracamImageSource: app.node.tryGetContext("deploySoracomImageSource")
+    ? true
+    : false,
+  deployGoogleSheetsSink: app.node.tryGetContext("deployGoogleSheetsSink")
+    ? true
+    : false,
+  deployPhoneCallSink: app.node.tryGetContext("deployPhoneCallSink")
+    ? true
+    : false,
 };
 
 new FluxToysStack(app, "FluxToysStack", props);

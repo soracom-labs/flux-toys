@@ -51,8 +51,22 @@ export const handler = async (event: any = {}): Promise<any> => {
     "YYYYMMDDHHmmss"
   )}.jpg`;
 
-  const uploadResult = await soracomClient.putFile(path, buffer, "image/jpeg");
+  try {
+    await soracomClient.putFile(path, buffer, "image/jpeg");
+  } catch (e) {
+    console.error(e);
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        message: "Failed to upload image",
+      }),
+    };
+  }
+
   return {
     statusCode: 201,
+    body: JSON.stringify({
+      message: "Image uploaded.",
+    }),
   };
 };

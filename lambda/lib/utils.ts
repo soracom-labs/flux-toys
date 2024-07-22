@@ -11,7 +11,7 @@ export async function fetchAndParseSoracomSecrets(): Promise<{
   soracomAuthKeyId: string;
   soracomAuthKey: string;
 }> {
-  const secretName = process.env.SECRET_NAME!;
+  const secretName = process.env.SORACOM_SECRET_NAME!;
   const client = new SecretsManagerClient({});
   const command = new GetSecretValueCommand({ SecretId: secretName });
 
