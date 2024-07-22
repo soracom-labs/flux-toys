@@ -1,8 +1,6 @@
 # FluxToys
 
-This project provides a series of sources, sinks and integrations those we can play around with SORACOM Flux, a low code IoT aplication builder.
-
-A collective of webhooks those can be played around with Soracom Flux. Each webhook provides source 
+A collective of webhooks those can be played around with Soracom Flux. Each webhook provides source function which fetch data from outside Soracom Flux, or sink function which emits data to outside of Soracom Flux.
 
 ## Sources
 
