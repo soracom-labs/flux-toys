@@ -28,11 +28,12 @@ A source webhook which uploads SorCam image to Soracom Harvest Files.
 curl \
 -XGET \
 -H "x-api-key:${apikey}" \
-"https://${hostname}/v1/source/soracam_image?device_id=${device_id}"
+"https://${hostname}/v1/source/soracam_image?device_id=${device_id}&upload_directory=${directory}"
 ```
 
 Query parameters
 * device_id: Soracam ID
+* upload_directory: Upload target directory under base path.
 
 You will need SAM user with permissions below
 

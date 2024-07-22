@@ -42,12 +42,17 @@ describe("Lambda handler", () => {
 
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body).message).toBe(
-      "device is required in querystring parameters"
+      "device_id and upload_directory are required in querystring parameters"
     );
   });
 
   it("should successfully process the request", async () => {
-    const event = { queryStringParameters: { device_id: "testDevice" } };
+    const event = {
+      queryStringParameters: {
+        device_id: "testDevice",
+        upload_directory: "testDirectory",
+      },
+    };
 
     // Mock the Secrets Manager response
     secretsManagerMock.on(GetSecretValueCommand).resolves({
@@ -87,7 +92,7 @@ describe("Lambda handler", () => {
 
     soracomHttpClientMock
       .onPut(
-        /https:\/\/api.soracom.io\/v1\/files\/private\/test\/path\/testDevice-\d{14}.jpg/
+        /https:\/\/api.soracom.io\/v1\/files\/private\/test\/path\/testDirectory\/testDevice-\d{14}.jpg/
       )
       .reply(201);
 
