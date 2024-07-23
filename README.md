@@ -183,7 +183,7 @@ npx cdk deploy \
   --context deploySoracomAirMetadataSource=1 \
   --context deploySoracomAirSmsSink=1 \
   --context deploySoracomHarvestDataSource=1 \
-  --context deploySoracomImageSource=1 \
+  --context deploySoracamImageSource=1 \
   --context deployGoogleSheetsSink=1 \
   --context deployPhoneCallSink=1 \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \

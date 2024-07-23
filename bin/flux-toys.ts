@@ -28,7 +28,7 @@ const props: FluxToysStackProps = {
   )
     ? true
     : false,
-  deploySoracamImageSource: app.node.tryGetContext("deploySoracomImageSource")
+  deploySoracamImageSource: app.node.tryGetContext("deploySoracamImageSource")
     ? true
     : false,
   deployGoogleSheetsSink: app.node.tryGetContext("deployGoogleSheetsSink")
