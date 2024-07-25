@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { BaseConstruct } from "./base-construct";
 import { Construct } from "constructs";
 
 export interface SoracamImageSourceConstructProps {
@@ -8,19 +9,20 @@ export interface SoracamImageSourceConstructProps {
   readonly harvestFilesPath: string;
 }
 
-export class SoracamImageSourceConstruct extends Construct {
+export class SoracamImageSourceConstruct extends BaseConstruct {
   constructor(
     scope: Construct,
     id: string,
     props: SoracamImageSourceConstructProps
   ) {
     super(scope, id);
-
+    const functionId = this.functionName();
     const SoracamImageSourceFunction = new cdk.aws_lambda.Function(
       this,
-      "soracamImageSourceFunction",
+      functionId,
       {
         handler: "soracam-image-source.handler",
+        functionName: functionId,
         code: cdk.aws_lambda.Code.fromAsset("lambda"),
         environment: {
           SORACOM_SECRET_NAME: props.soracomSecret.secretName,

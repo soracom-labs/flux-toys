@@ -29,6 +29,22 @@ Query parameters
 * tag_name: Tag name in metadata.
 * coverage_type: SORACOM coverage type. "g" or "jp".
 
+Deploy
+
+```
+npm run installAll
+npm run build
+npx cdk deploy \
+  --context deploySoracomAirMetadataSource=1 \
+  --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
+  --context soracomAuthKey="${SORACOM_AUTH_KEY}" 
+```
+
+* deploySoracomAirMetadataSource - A flag to deploy a component
+* 
+* soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+* soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+
 ### SoraCam(Soracom Cloud Camera Service)
 
 A source webhook which uploads SorCam image to Soracom Harvest Files.
@@ -61,6 +77,23 @@ You will need SAM user with permissions below
 }
 ```
 
+Deploy
+
+```
+npm run installAll
+npm run build
+npx cdk deploy \
+  --context deploySoracamImageSourceSink=1 \
+  --context harvestFilesPath="${HARVEST_FILES_DIR_PATH}" \
+  --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
+  --context soracomAuthKey="${SORACOM_AUTH_KEY}" 
+```
+
+* deploySoracamImageSourceSink - A flag to deploy a component
+* 
+* soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+* soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+
 ### SORACOM Harvest Data
 
 A source webhook which returns a series of data entries from Soracom Harvest Data.
@@ -76,6 +109,21 @@ Query parameters
 * resource_type: If you are using SORACOM SIM, please specify "Subscriber".
 * resource_id: If you are using SORACOM SIM, please specify your SIM's IMSI.
 * coverage_type: SORACOM coverage type. "g" or "jp".
+
+Deploy
+
+```
+npm run installAll
+npm run build
+npx cdk deploy \
+  --context deploySoracomHarvestDataSource=1 \
+  --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
+  --context soracomAuthKey="${SORACOM_AUTH_KEY}" 
+```
+
+* deploySoracomHarvestDataSource - A flag to deploy a component
+* soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+* soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
 
 ## Sinks
 
@@ -102,6 +150,21 @@ Query parameters
 * tag_name: Tag name in metadata.
 * coverage_type: SORACOM coverage type. "g" or "jp".
 
+Deploy
+
+```
+npm run installAll
+npm run build
+npx cdk deploy \
+  --context deploySoracomAirMetadataSink=1 \
+  --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
+  --context soracomAuthKey="${SORACOM_AUTH_KEY}"
+```
+
+* deploySoracomAirMetadataSink - A flag to deploy a component
+* soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+* soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+
 ### SORACOM SMS API
 
 This sink sends a SMS with posted text.
@@ -119,6 +182,22 @@ curl \
 
 Query parameters
 * sim_id: Target SIM ID
+
+Deploy
+
+```
+npm run installAll
+npm run build
+npx cdk deploy \
+  --context deploySoracomAirSmsSink=1 \
+  --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
+  --context soracomAuthKey="${SORACOM_AUTH_KEY}" 
+```
+
+* deploySoracomAirSmsSink - A flag to deploy a component
+* soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+* soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+
 
 ### Phone call
 
@@ -138,19 +217,25 @@ curl \
 Query Parameters
 * to_number: URL encoded phone number with country code. For example, when you call to U.S. number, you have to start with '%2B1' while %2B represents '+' in url safe characters, which means '+1'.
 
-
-### AWS IoT Core(To be implemented)
-
-This sink publish a message to AWS IoT Core with posted topic.
+Deploy
 
 ```
-curl \
--XPOST \
--H 'Content-Type:application/json' \
--H "x-api-key:${apikey}" \
--d '{"topic":"${topic}","${message}"} \
-https://${hostname}/v1/sink/aws_iot_core
+npm run installAll
+npm run build
+npx cdk deploy \
+  --context deployPhoneCallSink=1 \
+  --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
+  --context soracomAuthKey="${SORACOM_AUTH_KEY}" \
+  --context twilioSecretname="${AWS_SECRETS_MANAGER_NAME_FOR_TWILIO}"
 ```
+
+* deployPhoneCallSink - A flag to deploy a component
+* twilioSecretname - A secret name of AWS Secrets Manager. The value should be like
+    ```
+    {"accountSid":"YOUR TWILIO ACCOUNT SID STARTING FROM 'AC'","authToken":"YOUR AUTH TOKEN","myPhoneNumber":"YOUR FROM PHONE NUMBER"}
+    ```
+* soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+* soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
 
 ### Google Sheets
 
@@ -173,25 +258,38 @@ Query parameters
 * sheed_id: Google Sheet ID. It is included in the URL of your sheet.
 * sheet_name: Sheet name in the spread sheet.
 
-## Deploy
+Deploy
 
 ```
 npm run installAll
 npm run build
 npx cdk deploy \
-  --context deploySoracomAirMetadataSink=1 \
-  --context deploySoracomAirMetadataSource=1 \
-  --context deploySoracomAirSmsSink=1 \
-  --context deploySoracomHarvestDataSource=1 \
-  --context deploySoracamImageSource=1 \
   --context deployGoogleSheetsSink=1 \
-  --context deployPhoneCallSink=1 \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
   --context soracomAuthKey="${SORACOM_AUTH_KEY}" \
-  --context harvestFilesPath="${HARVEST_FILES_DIR_PATH}" \
-  --context googleSecretname="${AWS_SECRETS_MANAGER_NAME_FOR_GOOGLESHEETS}" \
-  --context twilioSecretname="${AWS_SECRETS_MANAGER_NAME_FOR_TWILIO}"
+  --context googleSecretname="${AWS_SECRETS_MANAGER_NAME_FOR_GOOGLE}"
 ```
+
+* deployGoogleSheetsSink - A flag to deploy a component
+* googleSecretname - A secret name of AWS Secrets Manager. The value should be like below. It's a Goole service account's credentials.
+    ```
+    {
+      "type": "service_account",
+      "project_id": "factory-personal",
+      "private_key_id": "xxxx",
+      "private_key": "-----BEGIN PRIVATE KEY-----\nxxxx----\n",
+      "client_email": "xxxx",
+      "client_id": "xxxx",
+      "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+      "token_uri": "https://oauth2.googleapis.com/token",
+      "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+      "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/xxx",
+      "universe_domain": "googleapis.com"
+  }
+    ```
+* soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+* soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
+
 
 ### You will need IAM permission below
 

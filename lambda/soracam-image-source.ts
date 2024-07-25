@@ -1,5 +1,6 @@
 import axios from "axios";
 import dayjs from "dayjs";
+import path from "path";
 import { getSoracomClient, setGetSoracomClient } from "./lib/utils";
 export { setGetSoracomClient };
 
@@ -47,12 +48,14 @@ export const handler = async (event: any = {}): Promise<any> => {
     }
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
-  let path = `${harvestfilesPath}/${uploadDirectory}/${deviceId}-${dayjs().format(
-    "YYYYMMDDHHmmss"
-  )}.jpg`;
+  let filePath = path.join(
+    harvestfilesPath,
+    uploadDirectory,
+    `${deviceId}-${dayjs().format("YYYYMMDDHHmmss")}.jpg`
+  );
 
   try {
-    await soracomClient.putFile(path, buffer, "image/jpeg");
+    await soracomClient.putFile(filePath, buffer, "image/jpeg");
   } catch (e) {
     console.error(e);
     return {

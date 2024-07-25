@@ -24,36 +24,43 @@ export interface FluxToysStackProps extends cdk.StackProps {
 }
 
 export class FluxToysStack extends cdk.Stack {
+  private addPrefixToId(id: string): string {
+    return `${this.stackName}-${id}`;
+  }
+
   constructor(scope: Construct, id: string, props: FluxToysStackProps) {
     super(scope, id, props);
 
-    console.log("props", props);
+    const api = new cdk.aws_apigateway.RestApi(
+      this,
+      this.addPrefixToId("flux-toys-api"),
+      {
+        defaultMethodOptions: {
+          apiKeyRequired: true,
+        },
+        deployOptions: {
+          stageName: "v1",
+        },
+      }
+    );
 
-    const api = new cdk.aws_apigateway.RestApi(this, "FluxToysCollection", {
-      defaultMethodOptions: {
-        apiKeyRequired: true,
-      },
-      deployOptions: {
-        stageName: "v1",
-      },
+    const apiKey = api.addApiKey(this.addPrefixToId("flux-toys-api-key"), {
+      apiKeyName: this.addPrefixToId("flux-toys-api-key"),
     });
-
-    const apiKey = api.addApiKey("FluxToysCollectionApiKey", {
-      apiKeyName: "FluxToysCollectionApiKey",
-    });
-    const plan = api.addUsagePlan("FluxToysCollectionUsagePlan", {
-      name: "FluxToysCollectionUsagePlan",
+    const plan = api.addUsagePlan(this.addPrefixToId("flux-toys-usage-plan"), {
+      name: this.addPrefixToId("flux-toys-usage-plan"),
     });
     plan.addApiKey(apiKey);
     plan.addApiStage({ stage: api.deploymentStage });
     const sourceResource = api.root.addResource("source");
     const sinkResource = api.root.addResource("sink");
 
+    const soracomSecretName = this.addPrefixToId("soracom-api-credentials");
     const soracomSecret = new cdk.aws_secretsmanager.Secret(
       this,
-      "SoracomAPICredentials",
+      this.addPrefixToId("soracom-api-credentials"),
       {
-        secretName: "SoracomAPICredentials",
+        secretName: soracomSecretName,
         secretStringValue: new cdk.SecretValue(
           JSON.stringify({
             soracomAuthKeyId: props.soracomAuthKeyId,
@@ -76,18 +83,22 @@ export class FluxToysStack extends cdk.Stack {
         );
       }
 
-      new SoracamImageSourceConstruct(this, "SoracamImageSourceConstruct", {
-        nodeJSFunctionProps,
-        sourceResource,
-        soracomSecret,
-        harvestFilesPath: props.harvestFilesPath,
-      });
+      new SoracamImageSourceConstruct(
+        this,
+        this.addPrefixToId("soracam-image-source"),
+        {
+          nodeJSFunctionProps,
+          sourceResource,
+          soracomSecret,
+          harvestFilesPath: props.harvestFilesPath,
+        }
+      );
     }
 
     if (props.deploySoracomAirMetadataSource) {
       new SoracomAirMetadataSourceConstruct(
         this,
-        "SoracomAirMetadataSourceConstruct",
+        this.addPrefixToId("soracom-air-metadata-source"),
         {
           nodeJSFunctionProps,
           sourceResource,
@@ -99,7 +110,7 @@ export class FluxToysStack extends cdk.Stack {
     if (props.deploySoracomAirMetadataSink) {
       new SoracomAirMetadataSinkConstruct(
         this,
-        "SoracomAirMetadataSinkConstruct",
+        this.addPrefixToId("soracom-air-metadata-sink"),
         {
           nodeJSFunctionProps,
           sinkResource,
@@ -109,17 +120,21 @@ export class FluxToysStack extends cdk.Stack {
     }
 
     if (props.deploySoracomAirSmsSink) {
-      new SoracomAirSmsSinkConstruct(this, "SoracomAirSmsSinkConstruct", {
-        nodeJSFunctionProps,
-        sinkResource,
-        soracomSecret,
-      });
+      new SoracomAirSmsSinkConstruct(
+        this,
+        this.addPrefixToId("soracom-air-sms-sink"),
+        {
+          nodeJSFunctionProps,
+          sinkResource,
+          soracomSecret,
+        }
+      );
     }
 
     if (props.deploySoracomHarvestDataSource) {
       new SoracomHarvestDataSourceConstruct(
         this,
-        "SoracomHarvestDataSourceConstruct",
+        this.addPrefixToId("soracom-harvest-data-source"),
         {
           nodeJSFunctionProps,
           sourceResource,
@@ -134,7 +149,7 @@ export class FluxToysStack extends cdk.Stack {
           "twilioSecretname is required for PhoneCallSinkConstruct"
         );
       }
-      new PhoneCallSinkConstruct(this, "PhoneCallSinkConstruct", {
+      new PhoneCallSinkConstruct(this, this.addPrefixToId("phone-call-sink"), {
         nodeJSFunctionProps,
         sinkResource,
         twilioSecretname: props.twilioSecretname,
@@ -147,11 +162,15 @@ export class FluxToysStack extends cdk.Stack {
           "googleSecretname is required for GoogleSheetsSinkConstruct"
         );
       }
-      new GoogleSheetsSinkConstruct(this, "GoogleSheetsSinkConstruct", {
-        nodeJSFunctionProps,
-        sinkResource,
-        googleSecretname: props.googleSecretname,
-      });
+      new GoogleSheetsSinkConstruct(
+        this,
+        this.addPrefixToId("google-sheets-sink"),
+        {
+          nodeJSFunctionProps,
+          sinkResource,
+          googleSecretname: props.googleSecretname,
+        }
+      );
     }
   }
 }

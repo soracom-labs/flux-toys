@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { BaseConstruct } from "./base-construct";
 import { Construct } from "constructs";
 
 export interface PhoneCallSinkConstructProps {
@@ -7,7 +8,7 @@ export interface PhoneCallSinkConstructProps {
   readonly twilioSecretname: string;
 }
 
-export class PhoneCallSinkConstruct extends Construct {
+export class PhoneCallSinkConstruct extends BaseConstruct {
   constructor(
     scope: Construct,
     id: string,
@@ -15,11 +16,13 @@ export class PhoneCallSinkConstruct extends Construct {
   ) {
     super(scope, id);
 
+    const functionId = this.functionName();
     const PhoneCallSinkFunction = new cdk.aws_lambda.Function(
       this,
-      "PhoneCallSinkFunction",
+      functionId,
       {
         handler: "phone-call-sink.handler",
+        functionName: functionId,
         code: cdk.aws_lambda.Code.fromAsset("lambda"),
         ...props.nodeJSFunctionProps,
       }
@@ -27,7 +30,7 @@ export class PhoneCallSinkConstruct extends Construct {
 
     const twilioSecret = cdk.aws_secretsmanager.Secret.fromSecretNameV2(
       this,
-      "TwilioSecret",
+      this.addPrefixToId("twilio-secret"),
       props.twilioSecretname
     );
     twilioSecret.grantRead(PhoneCallSinkFunction);

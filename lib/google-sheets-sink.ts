@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { BaseConstruct } from "./base-construct";
 import { Construct } from "constructs";
 
 export interface GoogleSheetsSinkConstructProps {
@@ -7,7 +8,7 @@ export interface GoogleSheetsSinkConstructProps {
   readonly googleSecretname: string;
 }
 
-export class GoogleSheetsSinkConstruct extends Construct {
+export class GoogleSheetsSinkConstruct extends BaseConstruct {
   constructor(
     scope: Construct,
     id: string,
@@ -15,11 +16,13 @@ export class GoogleSheetsSinkConstruct extends Construct {
   ) {
     super(scope, id);
 
+    const functionId = this.functionName();
     const GoogleSheetsSinkFunction = new cdk.aws_lambda.Function(
       this,
-      "GoogleSheetsSinkFunction",
+      functionId,
       {
         handler: "google-sheets-sink.handler",
+        functionName: functionId,
         code: cdk.aws_lambda.Code.fromAsset("lambda"),
         ...props.nodeJSFunctionProps,
       }
@@ -27,7 +30,7 @@ export class GoogleSheetsSinkConstruct extends Construct {
 
     const googleSecret = cdk.aws_secretsmanager.Secret.fromSecretNameV2(
       this,
-      "GoogleSecret",
+      this.addPrefixToId("google-secret"),
       props.googleSecretname
     );
 
@@ -39,7 +42,7 @@ export class GoogleSheetsSinkConstruct extends Construct {
     );
 
     props.sinkResource
-      .addResource("googlesheets")
+      .addResource("google_sheets")
       .addMethod(
         "POST",
         new cdk.aws_apigateway.LambdaIntegration(GoogleSheetsSinkFunction)
