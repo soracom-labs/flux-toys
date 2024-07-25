@@ -1,4 +1,4 @@
-# FluxToys
+# flux-toys
 
 A collective of webhooks those can be played around with Soracom Flux. Each webhook provides source function which fetch data from outside Soracom Flux, or sink function which emits data to outside of Soracom Flux.
 
