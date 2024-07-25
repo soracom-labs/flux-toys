@@ -35,11 +35,13 @@ Deploy
 npm run installAll
 npm run build
 npx cdk deploy \
+  --context stackName=${myName} \
   --context deploySoracomAirMetadataSource=1 \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
   --context soracomAuthKey="${SORACOM_AUTH_KEY}" 
 ```
 
+* stackName - Stack name prefix
 * deploySoracomAirMetadataSource - A flag to deploy a component
 * 
 * soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
@@ -83,12 +85,14 @@ Deploy
 npm run installAll
 npm run build
 npx cdk deploy \
+  --context stackName=${myName} \
   --context deploySoracamImageSourceSink=1 \
   --context harvestFilesPath="${HARVEST_FILES_DIR_PATH}" \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
   --context soracomAuthKey="${SORACOM_AUTH_KEY}" 
 ```
 
+* stackName - Stack name prefix
 * deploySoracamImageSourceSink - A flag to deploy a component
 * 
 * soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
@@ -116,11 +120,13 @@ Deploy
 npm run installAll
 npm run build
 npx cdk deploy \
+  --context stackName=${myName} \
   --context deploySoracomHarvestDataSource=1 \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
   --context soracomAuthKey="${SORACOM_AUTH_KEY}" 
 ```
 
+* stackName - Stack name prefix
 * deploySoracomHarvestDataSource - A flag to deploy a component
 * soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
 * soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
@@ -156,6 +162,7 @@ Deploy
 npm run installAll
 npm run build
 npx cdk deploy \
+  --context stackName=${myName} \
   --context deploySoracomAirMetadataSink=1 \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
   --context soracomAuthKey="${SORACOM_AUTH_KEY}"
@@ -189,11 +196,13 @@ Deploy
 npm run installAll
 npm run build
 npx cdk deploy \
+  --context stackName=${myName} \
   --context deploySoracomAirSmsSink=1 \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
   --context soracomAuthKey="${SORACOM_AUTH_KEY}" 
 ```
 
+* stackName - Stack name prefix
 * deploySoracomAirSmsSink - A flag to deploy a component
 * soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
 * soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
@@ -223,12 +232,14 @@ Deploy
 npm run installAll
 npm run build
 npx cdk deploy \
+  --context stackName=${myName} \
   --context deployPhoneCallSink=1 \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
   --context soracomAuthKey="${SORACOM_AUTH_KEY}" \
   --context twilioSecretname="${AWS_SECRETS_MANAGER_NAME_FOR_TWILIO}"
 ```
 
+* stackName - Stack name prefix
 * deployPhoneCallSink - A flag to deploy a component
 * twilioSecretname - A secret name of AWS Secrets Manager. The value should be like
     ```
@@ -264,12 +275,14 @@ Deploy
 npm run installAll
 npm run build
 npx cdk deploy \
+  --context stackName=${myName} \
   --context deployGoogleSheetsSink=1 \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
   --context soracomAuthKey="${SORACOM_AUTH_KEY}" \
   --context googleSecretname="${AWS_SECRETS_MANAGER_NAME_FOR_GOOGLE}"
 ```
 
+* stackName - Stack name prefix
 * deployGoogleSheetsSink - A flag to deploy a component
 * googleSecretname - A secret name of AWS Secrets Manager. The value should be like below. It's a Goole service account's credentials.
     ```
