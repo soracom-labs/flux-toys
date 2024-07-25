@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
+import * as readline from "node:readline/promises";
+import { stdin as input, stdout as output } from "node:process";
 import { FluxToysStack, FluxToysStackProps } from "../lib/flux-toys-stack";
 
 const app = new cdk.App();
@@ -39,4 +41,9 @@ const props: FluxToysStackProps = {
     : false,
 };
 
-new FluxToysStack(app, "FluxToysStack", props);
+const stackName = app.node.tryGetContext("stackName") + "-flux-toys-stack";
+
+console.log("Stack Name: ", stackName);
+console.log("Props: ", props);
+
+new FluxToysStack(app, stackName, props);

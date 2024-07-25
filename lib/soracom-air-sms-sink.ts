@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { BaseConstruct } from "./base-construct";
 import { Construct } from "constructs";
 
 export interface SoracomAirSmsSinkConstructProps {
@@ -7,7 +8,7 @@ export interface SoracomAirSmsSinkConstructProps {
   readonly soracomSecret: cdk.aws_secretsmanager.Secret;
 }
 
-export class SoracomAirSmsSinkConstruct extends Construct {
+export class SoracomAirSmsSinkConstruct extends BaseConstruct {
   constructor(
     scope: Construct,
     id: string,
@@ -15,11 +16,13 @@ export class SoracomAirSmsSinkConstruct extends Construct {
   ) {
     super(scope, id);
 
+    const functionId = this.functionName();
     const SoracomAirSmsSinkFunction = new cdk.aws_lambda.Function(
       this,
-      "SoracomAirSmsSinkFunction",
+      functionId,
       {
         handler: "soracom-air-sms-sink.handler",
+        functionName: functionId,
         code: cdk.aws_lambda.Code.fromAsset("lambda"),
         environment: {
           SORACOM_SECRET_NAME: props.soracomSecret.secretName,

@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import { BaseConstruct } from "./base-construct";
 import { Construct } from "constructs";
 
 export interface SoracomHarvestDataSourceConstructProps {
@@ -7,7 +8,7 @@ export interface SoracomHarvestDataSourceConstructProps {
   readonly soracomSecret: cdk.aws_secretsmanager.Secret;
 }
 
-export class SoracomHarvestDataSourceConstruct extends Construct {
+export class SoracomHarvestDataSourceConstruct extends BaseConstruct {
   constructor(
     scope: Construct,
     id: string,
@@ -15,11 +16,13 @@ export class SoracomHarvestDataSourceConstruct extends Construct {
   ) {
     super(scope, id);
 
+    const functionId = this.functionName();
     const SoracomHarvestDataSourceFunction = new cdk.aws_lambda.Function(
       this,
-      "SoracomHarvestDataSourceFunction",
+      functionId,
       {
         handler: "soracom-harvest-data-source.handler",
+        functionName: functionId,
         code: cdk.aws_lambda.Code.fromAsset("lambda"),
         environment: {
           SORACOM_SECRET_NAME: props.soracomSecret.secretName,
