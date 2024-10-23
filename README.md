@@ -1,4 +1,4 @@
-# flux-toys
+# FluxToys
 
 A collective of webhooks those can be played around with Soracom Flux. Each webhook provides source function which fetch data from outside Soracom Flux, or sink function which emits data to outside of Soracom Flux.
 
@@ -72,7 +72,8 @@ You will need SAM user with permissions below
             "api": [
                 "SoraCam:getSoraCamDeviceExportedImage",
                 "SoraCam:exportSoraCamDeviceRecordedImage",
-                "FileEntry:putFile"
+                "FileEntry:putFile",
+                "OAuth2:authorize"
             ]
         }
     ]
@@ -86,15 +87,15 @@ npm run installAll
 npm run build
 npx cdk deploy \
   --context stackName=${myName} \
-  --context deploySoracamImageSourceSink=1 \
+  --context deploySoracamImageSource=1 \
   --context harvestFilesPath="${HARVEST_FILES_DIR_PATH}" \
   --context soracomAuthKeyId="${SORACOM_AUTH_KEY_ID}" \
   --context soracomAuthKey="${SORACOM_AUTH_KEY}" 
 ```
 
 * stackName - Stack name prefix
-* deploySoracamImageSourceSink - A flag to deploy a component
-* 
+* deploySoracamImageSource - A flag to deploy a component
+* harvestFilesPath - Base directory of image uploads. If you specify 'soracam' here and specify 'test' for upload_directory when invoking webhook, the stack will upload your image to `/soracam/test/${soracom_devicd_id}_${timestamp}.jpg`
 * soracomAuthKeyId - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
 * soracomAuthKey - Your Soracom credentials AuthKeyId. It is required everywhere as of now.
 
